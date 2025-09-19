@@ -1,26 +1,79 @@
 import { Component } from "react";
-// import './Modal.css';
+import '../Modal.css';
+import styled from "styled-components";
 // import './App.css';
+
+const Backdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModalContainer = styled.div`
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  min-width: 300px;
+  text-align: center;
+`;
+
 
 
 export class Modal extends Component{
+    componentDidMount() {
+    // додаємо слухача на клавішу Escape
+    window.addEventListener("keydown", this.handleKeyDown);
+  }
 
-    state = {
-        opened: false,
+  componentDidUpdate(prevProps) {
+    if (prevProps.isOpen !== this.props.isOpen) {
+      console.log("Modal state:", this.props.isOpen);
     }
+  }
 
-    openModal = ()=>{
-        this.setState({opend: true})
+  componentWillUnmount() {
+    // прибираємо слухача після демонтажу
+    window.removeEventListener("keydown", this.handleKeyDown);
+  }
+
+   handleKeyDown = (e) => {
+    if (e.code === "Escape") {
+      this.props.onClose();
     }
+  };
+
+  handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      this.props.onClose();
+    }
+  };
+
+
+
+    
 
     render(){
+
+    const { isOpen, onClose, children } = this.props;
+
+        if (!isOpen) {
+        return null; // якщо закрито, нічого не рендеримо
+        }
+
         return(
-            <div className="backDrop">
-                <div className="modal">
+            <Backdrop onClick={this.handleBackdropClick} className="backDrop">
+                <ModalContainer className="modal">
+                    {children}
                     <p>Hello PoInt</p>
-                    <button onClick={()=>{openModal()}}>Close</button>
-                </div>
-            </div>
+                    <button onClick={onClose}>Close</button>
+                </ModalContainer>
+            </Backdrop>
         )
     }
 }
